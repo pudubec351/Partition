@@ -167,13 +167,3 @@ Le programme retourne le dossier contenant les pistes séparées, prêtes pour :
 🛠️ traitement ultérieur
 🎼 génération de partitions (étape future)
 
----
-
-Si tu veux, je peux maintenant :
-- ajouter une **section “Future work / Roadmap”**
-- le rendre **encore plus GitHub-friendly** (badges, screenshots, CLI usage)
-- ou l’adapter pour un **rapport académique**
-transcription musicale (étape future du projet)
-Si tu veux, je peux maintenant :
-ajouter une section “Future work – Partition musicale”
-ou adapter ce README pour un rendu universitaire / startup / GitHub public

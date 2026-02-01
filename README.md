@@ -84,86 +84,43 @@ Ce fichier contient **toute la logique audio**. Il :
 
 ### Fonctionnement détaillé
 
-#### Initialisation
+## 🐧 Installation (Linux)
 
-```python
-class AudioProcessor:
-    def __init__(self, model_name="htdemucs", device="cpu"):
-model_name : modèle Demucs utilisé (htdemucs par défaut)
-device : cpu ou cuda
-👉 CPU recommandé pour la stabilité
-Un dossier separated/ est automatiquement créé pour stocker les résultats.
-Séparation audio
-def separate_and_clean(self, input_file):
-⚠️ Malgré son nom, aucun nettoyage audio n’est effectué dans la version actuelle.
-Ce choix est volontaire afin de :
+Cette section explique comment installer et lancer le projet **à partir de zéro** sur une machine Linux.
 
-éviter une consommation disque excessive
-conserver une base stable et simple
-Appel à Demucs (point clé)
-cmd = [
-    "demucs",
-    "-n", self.model_name,
-    "-d", self.device,
-    "-o", self.separated_folder,
-    input_file
-]
-Équivalent exact à la commande :
-demucs -n htdemucs -d cpu -o separated mon_fichier.mp3
-Avantages
-✅ Aucun problème de version Python
-✅ Aucune dépendance à l’API interne de Demucs
-✅ Très robuste sous Linux
-Résultat généré
-Demucs crée automatiquement la structure suivante :
-separated/
-└── htdemucs/
-    └── nom_du_morceau/
-        ├── vocals.wav
-        ├── drums.wav
-        ├── bass.wav
-        └── other.wav
-👉 Le chemin de ce dossier est retourné à l’application.
-▶️ main_app.py — Point d’entrée utilisateur
-Rôle
-main_app.py agit comme contrôleur :
-instancie AudioProcessor
-lance la séparation audio
-affiche les messages à l’utilisateur
-👉 C’est le fichier à exécuter.
-Exemple de logique
-from audio_processor import AudioProcessor
+---
 
-processor = AudioProcessor()
-output = processor.separate_and_clean("ya.mp3")
-Cela suffit à :
-lancer Demucs
-séparer le morceau
-récupérer les pistes audio
-🐧 Installation sous Linux (from scratch)
-1️⃣ Prérequis système
+### 1️⃣ Prérequis système
+
+Assure-toi d’avoir les paquets suivants installés :
+
+```bash
 sudo apt update
 sudo apt install -y python3 python3-venv ffmpeg
-⚠️ FFmpeg est obligatoire pour Demucs.
+ℹ️ FFmpeg est obligatoire : Demucs l’utilise pour lire et convertir les fichiers audio.
 2️⃣ Création de l’environnement Python
+Depuis le dossier du projet :
 python3 -m venv audio-ai
 source audio-ai/bin/activate
-3️⃣ Installation des dépendances
+Une fois activé, ton terminal doit afficher quelque chose comme :
+(audio-ai) user@machine:~$
+3️⃣ Installation des dépendances Python
+Mets à jour pip, puis installe Demucs :
 pip install --upgrade pip
 pip install demucs
-Aucune autre dépendance n’est nécessaire pour la séparation audio.
+✅ Aucune autre dépendance n’est nécessaire pour la séparation audio.
 4️⃣ Lancer l’application
-Place un fichier audio dans le dossier du projet, puis :
+Place un fichier audio (.mp3, .wav, etc.) dans le dossier du projet, puis lance :
 python main_app.py
-Ou directement :
+Ou directement depuis Python :
 python -c "
 from audio_processor import AudioProcessor
 p = AudioProcessor()
 p.separate_and_clean('mon_morceau.mp3')
 "
-📦 Sortie du programme
-Le programme retourne le dossier contenant les pistes séparées, prêtes pour :
-🎧 écoute individuelle
-🛠️ traitement ultérieur
-🎼 génération de partitions (étape future)
+5️⃣ Résultat
+Les pistes séparées sont générées dans le dossier :
+separated/
+Chaque morceau contient ses pistes individuelles (vocals, drums, bass, other),
+prêtes à être utilisées
 

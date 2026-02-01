@@ -1,64 +1,62 @@
-# Partition
-
-Choix technologiques
+Audio Separation Project – README
+🎯 Objectif du projet
+Ce projet permet de séparer automatiquement un fichier audio musical (ex : un morceau .mp3 ou .wav) en plusieurs pistes distinctes :
+voix (vocals)
+batterie (drums)
+basse (bass)
+autres instruments (other)
+Il constitue la première brique d’un projet plus large visant, à terme, la création de partitions musicales à partir de fichiers audio.
+🧠 Choix technologiques
 Pourquoi Demucs ?
 Demucs est actuellement l’un des meilleurs modèles open-source de séparation musicale :
-Très bonne qualité
-Fonctionne sur CPU (pas besoin de GPU)
-Facile à intégrer via la ligne de commande
-
-utiliser Demucs via subprocess, plutôt que via son API Python interne.
-
-Pourquoi ?
-L’API interne change souvent
-Beaucoup d’erreurs (apply_model, torchcodec, ffmpeg, etc.)
-La CLI Demucs est stable, robuste et production-ready
-
-Architecture du projet
+✅ Très haute qualité de séparation
+✅ Fonctionne sur CPU (pas besoin de GPU)
+✅ Facilement utilisable via la ligne de commande
+✅ Stable et éprouvé en production
+Pourquoi utiliser Demucs via subprocess ?
+Le projet utilise Demucs via sa CLI (ligne de commande) et non via son API Python interne.
+Raisons principales :
+❌ L’API Python interne de Demucs change souvent
+❌ Nombreuses erreurs rencontrées :
+apply_model
+torchcodec
+ffmpeg
+✅ La CLI Demucs est stable, robuste et fiable
+✅ Aucun couplage avec l’implémentation interne du modèle
+👉 Ce choix garantit un projet maintenable, portable et robuste, notamment sous Linux.
+🏗️ Architecture du projet
 Le projet repose volontairement sur deux fichiers Python seulement :
 my_audio_app/
 │
 ├── main_app.py          # Interface utilisateur / point d’entrée
 ├── audio_processor.py   # Logique métier : séparation audio
 Principe fondamental
-main_app.py = “ce que l’utilisateur voit”
-audio_processor.py = “ce que l’application fait réellement”
+main_app.py → ce que l’utilisateur lance
+audio_processor.py → ce que l’application fait réellement
 Cette séparation permet :
-De remplacer plus tard l’interface (CLI → GUI → Web)
-De garder un moteur audio propre et réutilisable
-
-audio_processor.py – Le cœur du projet
+de changer l’interface plus tard (CLI → GUI → Web)
+de garder un moteur audio propre et réutilisable
+⚙️ audio_processor.py – Le cœur du projet
 Rôle
 Ce fichier contient toute la logique audio.
 Il :
-Vérifie que le fichier audio existe
-Appelle Demucs
-Récupère les pistes séparées
-
-
-
-
-audio_processor.py – Le cœur du projet
-Rôle
-Ce fichier contient toute la logique audio.
-Il :
-Vérifie que le fichier audio existe
-Appelle Demucs
-Récupère les pistes séparées
-Retourne le dossier de sortie
+vérifie que le fichier audio existe
+appelle Demucs
+récupère les pistes séparées
+retourne le dossier de sortie
 Fonctionnement détaillé
 Initialisation
 class AudioProcessor:
     def __init__(self, model_name="htdemucs", device="cpu"):
 model_name : modèle Demucs utilisé (htdemucs par défaut)
-device : CPU ou GPU (cpu est le choix le plus stable)
-Un dossier separated/ est créé automatiquement pour stocker les résultats.
+device : cpu ou cuda (CPU recommandé pour la stabilité)
+Lors de l’initialisation, un dossier separated/ est créé automatiquement s’il n’existe pas.
 Séparation audio
 def separate_and_clean(self, input_file):
-Même si le nom contient clean, dans la version actuelle il n’y a PAS de nettoyage audio.
-Ce choix est volontaire pour :
-éviter une consommation disque excessive
-garder une base stable
+⚠️ Malgré son nom, aucun nettoyage audio n’est effectué dans la version actuelle.
+Ce choix est volontaire :
+éviter une consommation disque inutile
+garder une base stable et simple
 Appel à Demucs (point clé)
 cmd = [
     "demucs",
@@ -67,14 +65,14 @@ cmd = [
     "-o", self.separated_folder,
     input_file
 ]
-👉 Demucs est appelé comme en ligne de commande, exactement comme si l’utilisateur tapait :
+Demucs est appelé exactement comme en ligne de commande, équivalent à :
 demucs -n htdemucs -d cpu -o separated mon_fichier.mp3
-Avantage :
-Aucun problème de version Python
-Aucune dépendance interne à Demucs
-Très robuste sur Linux
-Résultat
-Demucs crée automatiquement une structure :
+Avantages
+✅ Aucun problème de version Python
+✅ Aucune dépendance à l’API interne de Demucs
+✅ Très robuste sur Linux
+Résultat généré
+Demucs crée automatiquement la structure suivante :
 separated/
 └── htdemucs/
     └── nom_du_morceau/
@@ -82,14 +80,14 @@ separated/
         ├── drums.wav
         ├── bass.wav
         └── other.wav
-Ce dossier est retourné à l’application.
-5. main_app.py – Le point d’entrée utilisateur
+👉 Le chemin de ce dossier est retourné à l’application.
+▶️ main_app.py – Point d’entrée utilisateur
 Rôle
-main_app.py sert de contrôleur :
-Il appelle AudioProcessor
-Il lance la séparation
-Il affiche les messages à l’utilisateur
-👉 C’est ce fichier que l’on exécute.
+main_app.py agit comme contrôleur :
+instancie AudioProcessor
+lance la séparation audio
+affiche les messages à l’utilisateur
+👉 C’est le fichier à exécuter.
 Exemple de logique
 processor = AudioProcessor()
 output = processor.separate_and_clean("ya.mp3")
@@ -97,7 +95,7 @@ Cela suffit à :
 lancer Demucs
 séparer le morceau
 récupérer les pistes audio
-6. Installation sous Linux (à partir de zéro)
+🐧 Installation sous Linux (à partir de zéro)
 1️⃣ Prérequis système
 sudo apt update
 sudo apt install -y python3 python3-venv ffmpeg
@@ -110,12 +108,19 @@ pip install --upgrade pip
 pip install demucs
 Aucune autre dépendance n’est nécessaire pour la séparation audio.
 4️⃣ Lancer l’application
-Place un fichier audio dans le dossier, puis :
+Place un fichier audio dans le dossier du projet, puis :
 python main_app.py
-ou en direct :
+Ou directement :
 python -c "
 from audio_processor import AudioProcessor
 p = AudioProcessor()
 p.separate_and_clean('mon_morceau.mp3')
-
-Retourne le dossier de sortie
+"
+📦 Sortie du programme
+Le programme retourne le dossier contenant les pistes séparées, prêt à être utilisé pour :
+écoute individuelle
+traitement ultérieur
+transcription musicale (étape future du projet)
+Si tu veux, je peux maintenant :
+ajouter une section “Future work – Partition musicale”
+ou adapter ce README pour un rendu universitaire / startup / GitHub public
